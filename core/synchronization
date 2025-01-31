@@ -1,0 +1,40 @@
+#QUBO FOR PERMUTATION SYNCHORNIZATION 
+import numpy as np
+
+class QuantumSyncQUBO:
+    def __init__(self, pairwise_mats, lambda_reg=2.5):
+        self.pairwise_mats = pairwise_mats  # List of P_ij matrices
+        self.lambda_reg = lambda_reg        # Constraint weight
+    
+    def build_qubo(self):
+        """Build QUBO matrix for permutation synchronization."""
+        n = self.pairwise_mats[0].shape[0]  # Size of each permutation
+        m = len(self.pairwise_mats)         # Number of views
+        
+        # Initialize QUBO matrix (Eq. 8)
+        qubo_size = m * n**2
+        Q = np.zeros((qubo_size, qubo_size))
+        
+        # Fill pairwise terms (Eq. 10-11)
+        for i in range(m):
+            for j in range(m):
+                if i != j:
+                    Q_block = np.kron(np.eye(n), -self.pairwise_mats[i][j])
+                    Q[i*n**2 : (i+1)*n**2, j*n**2 : (j+1)*n**2] = Q_block
+        
+        # Add permutation constraints (Sec 4.1)
+        A = self._constraint_matrix(n, m)
+        Q += self.lambda_reg * (A.T @ A)
+        return Q
+    
+    def _constraint_matrix(self, n, m):
+        """Constraint matrix ensuring each X_i is a permutation (Eq. 4)."""
+        A = np.zeros((2 * n * m, m * n**2))
+        for k in range(m):
+            # Row and column constraints for each X_k
+            for i in range(n):
+                # Row sum = 1
+                A[2*n*k + i, k*n**2 + i*n : k*n**2 + (i+1)*n] = 1
+                # Column sum = 1
+                A[2*n*k + n + i, k*n**2 + i :: n] = 1
+        return A
