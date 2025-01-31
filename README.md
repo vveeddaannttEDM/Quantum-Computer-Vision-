@@ -3,9 +3,9 @@
 ### Problem Formulation
 Given a set of noisy pairwise permutation matrices \(\{\mathbf{P}_{ij}\}\) between \(m\) views, the goal is to recover consistent absolute permutation matrices \(\{\mathbf{X}_i\}\) by solving:
 
-$$
+$
 \min_{\{\mathbf{X}_i \in \mathcal{P}_n\}} \sum_{(i,j)\in\mathcal{E}} \|\mathbf{P}_{ij} - \mathbf{X}_i \mathbf{X}_j^\top\|_F^2,
-$$
+$
 
 where:
 - \(\mathcal{P}_n\) is the set of \(n \times n\) permutation matrices.
